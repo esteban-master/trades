@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Broker {
+  id        String @id @default(uuid())
+  name      String
+  accounts  Account[]
+  commissions Commission[]
+}
+
+model Account {
+  id        String @id @default(uuid())
+  name      String
+  value     Decimal
+
+  broker    Broker @relation(fields: [brokerId], references: [id], onDelete: Cascade)
+  brokerId  String 
+
+  trades    Trade[]
+  createAt  DateTime
+}
+
+model Trade {
+  id         String @id @default(uuid())
+  price      Decimal
+  stopLoss   Decimal
+  takeProfit Decimal
+  profit     Decimal
+  swap       Decimal
+
+  pipsStopLoss        Decimal
+  pipsTakeProfit      Decimal
+
+  comment    String
+
+  account    Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String 
+  
+  symbol     Symbol @relation(fields: [symbolId], references: [id])
+  symbolId   String
+
+  type       OperationType
+
+  open       DateTime 
+  close      DateTime 
+}
+
+model Symbol {
+  id          String @id @default(uuid())
+  name        String
+
+  commissions Commission[]
+  trades      Trade[]
+}
+
+model Commission {
+  id        String @id @default(uuid())
+  volume    Decimal
+  value     Decimal
+  
+  symbol    Symbol @relation(fields: [symbolId], references: [id])
+  symbolId  String
+
+  broker    Broker @relation(fields: [brokerId], references: [id], onDelete: Cascade)
+  brokerId  String 
+}
+
+enum OperationType {
+  BUY
+  SELL
+}
+
