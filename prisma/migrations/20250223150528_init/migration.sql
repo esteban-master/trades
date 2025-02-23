@@ -4,6 +4,7 @@ CREATE TYPE "OperationType" AS ENUM ('BUY', 'SELL');
 -- CreateTable
 CREATE TABLE "Broker" (
     "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
 
     CONSTRAINT "Broker_pkey" PRIMARY KEY ("id")
 );

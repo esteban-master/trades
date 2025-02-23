@@ -1,24 +1,24 @@
 'use client'
-
+import { PlusCircle } from 'lucide-react';
 import { axiosInstance } from "@/lib/axiosInstance";
 import { v4 as uuidv4 } from 'uuid';
 import {
-	Box,
-	Text,
-	TextField,
-    Button
-} from "@radix-ui/themes";
-import { Label } from "radix-ui";
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { brokerValidator } from "../../api/brokers/Broker";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { Input } from "@/components/ui/input";
 
 type BrokerSchema = z.infer<typeof brokerValidator>;
 
-export function FormBroker() {
+export function FormBroker({ onCreate }: { onCreate: (values: BrokerSchema) => void }) {
 
     const brokerForm = useForm<BrokerSchema>({
         resolver: zodResolver(brokerValidator),
@@ -42,7 +42,7 @@ export function FormBroker() {
                 }
                 return [values]
             })
-
+            onCreate(values)
             return { previousBrokers }
         },
         onError: (error, _, context) => {
@@ -56,24 +56,28 @@ export function FormBroker() {
         }
     })
     return (
-        <Label.Root>
-            <Text size="2" weight="bold" mb="2" asChild>
-            	<Box display="inline-block">Title</Box>
-            </Text>
+        <Popover>
+            <PopoverTrigger asChild>
+                <PlusCircle className="h-8 w-8 cursor-pointer" />
+            </PopoverTrigger>
+            <PopoverContent>
+                <Input
+                    placeholder="Nuevo broker"
+                    {...brokerForm.register('name')}
+                />
 
-            <TextField.Root
-            	variant="soft"
-                radius="large"
-            	placeholder="Enter product title"
-                {...brokerForm.register('name')}
-            />
-
-            <Button onClick={() => {
-                brokerForm.setValue('id', uuidv4());
-                brokerForm.handleSubmit(async (values) => {
-                    mutate(values);
-                })();
-            }}>Crear</Button>
-        </Label.Root>
+                <Button 
+                    size={'lg'}
+                    onClick={() => {
+                        brokerForm.setValue('id', uuidv4());
+                        brokerForm.handleSubmit(async (values) => {
+                            mutate(values);
+                        })();
+                    }}
+                >
+                    Crear
+                </Button>
+            </PopoverContent>
+        </Popover>
     )
 }

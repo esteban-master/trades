@@ -2,8 +2,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { tradeValidator } from "./Trade";
-import { Prisma } from ".prisma/client";
-
+import { Prisma } from '@prisma/client';
 
 export async function GET() {
     const trades = await prisma.trade.findMany();

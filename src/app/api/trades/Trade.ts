@@ -1,4 +1,4 @@
-import { OperationType, Prisma } from '.prisma/client';
+import { OperationType, Prisma } from '@prisma/client';
 import { z } from 'zod'
 
 export type Trade = {
