@@ -19,7 +19,7 @@ export const commissionValidator = z.object({
         const decimal = new Prisma.Decimal(valor);
         return !isNaN(decimal.toNumber());
       } catch (error) {
-        return error;
+        return !new Boolean(error);
       }
     },
     { message: 'Ingrese un monto válido.' },
@@ -30,7 +30,7 @@ export const commissionValidator = z.object({
         const decimal = new Prisma.Decimal(valor);
         return !isNaN(decimal.toNumber());
       } catch (error) {
-        return error;
+        return !new Boolean(error);
       }
     },
     { message: 'Ingrese un valor válido.' },
