@@ -1,4 +1,5 @@
 'use client'
+
 import { PlusCircle } from 'lucide-react';
 import { axiosInstance } from "@/lib/axiosInstance";
 import { v4 as uuidv4 } from 'uuid';
@@ -11,14 +12,14 @@ import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { brokerValidator } from "../../api/brokers/Broker";
+import { brokerValidator } from "../../src/app/api/brokers/Broker";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { Input } from "@/components/ui/input";
 
 type BrokerSchema = z.infer<typeof brokerValidator>;
 
-export function FormBroker({ onCreate }: { onCreate: (values: BrokerSchema) => void }) {
+export function FormBroker({ onCreate }: { onCreate?: (values: BrokerSchema) => void }) {
 
     const brokerForm = useForm<BrokerSchema>({
         resolver: zodResolver(brokerValidator),
@@ -42,7 +43,9 @@ export function FormBroker({ onCreate }: { onCreate: (values: BrokerSchema) => v
                 }
                 return [values]
             })
-            onCreate(values)
+            if(onCreate) {
+                onCreate(values)
+            }
             return { previousBrokers }
         },
         onError: (error, _, context) => {
@@ -58,7 +61,7 @@ export function FormBroker({ onCreate }: { onCreate: (values: BrokerSchema) => v
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <PlusCircle className="h-8 w-8 cursor-pointer" />
+                <Button>Crear <PlusCircle className="h-8 w-8 cursor-pointer" /></Button>
             </PopoverTrigger>
             <PopoverContent>
                 <Input

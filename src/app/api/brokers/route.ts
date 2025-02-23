@@ -4,15 +4,7 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 
 export async function GET() {
-    const brokers = await prisma.broker.findMany({
-      include: {
-        commissions: {
-          include: {
-            symbol: true
-          }
-        }
-      }
-    });
+    const brokers = await prisma.broker.findMany();
 
     return NextResponse.json(brokers); 
 }

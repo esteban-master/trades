@@ -1,8 +1,10 @@
 import { z } from 'zod'
+import { Account } from '../accounts/Account';
 
 export type Broker = {
   id: string;
   name: string;
+  accounts: Account[]
 };
 
 export const brokerValidator = z.object({
