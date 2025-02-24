@@ -1,9 +1,9 @@
 import { OperationType, Prisma } from '@prisma/client';
 import { z } from 'zod'
+import { Symbol } from '../symbols/Symbol';
 
 export type Trade = {
   id: string;
-  name: string;
   price: string;
   stopLoss: string;
   takeProfit: string;
@@ -13,7 +13,7 @@ export type Trade = {
   pipsTakeProfit: string;
   comment: string;
   accountId: string;
-  symbolId: string;
+  symbol: Symbol;
 };
 
 const validateNumber = (value: string) => {
