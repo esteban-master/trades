@@ -6,14 +6,14 @@ export default function Home() {
   return (
     <div >
       <Link           
-        href="/broker"
+        href="/company"
         className={cn(
           buttonVariants({
             variant: 'outline',
           }),
         )}
         >
-          Brokers
+          Empresas
         </Link>
     </div>
   );

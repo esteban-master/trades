@@ -7,19 +7,19 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
-    const broker = await prisma.broker.findUnique({
+    const company = await prisma.company.findUnique({
       where: { id },
-      include: { company: true, commissions: { include: { symbol: true } }}
+      include: { accounts: true }
     });
 
-    if (!broker) {
+    if (!company) {
       return NextResponse.json(
-        { name: 'Not found', message: 'Broker no existe.' },
+        { name: 'Not found', message: 'Empresa no existe.' },
         { status: 404 },
       );
     }
 
-    return NextResponse.json(broker);
+    return NextResponse.json(company);
   } catch (error) {
     return NextResponse.json(
       { name: 'Internal server', message: error },

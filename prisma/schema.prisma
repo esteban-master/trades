@@ -13,11 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Company {
+  id    String @id @default(uuid())
+  name  String
+  accounts  Account[]
+  brokers   Broker[]
+}
+
 model Broker {
   id        String @id @default(uuid())
   name      String
-  accounts  Account[]
   commissions Commission[]
+  
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId  String 
 }
 
 model Account {
@@ -25,8 +34,8 @@ model Account {
   name      String
   value     Decimal
 
-  broker    Broker @relation(fields: [brokerId], references: [id], onDelete: Cascade)
-  brokerId  String 
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId  String 
 
   trades    Trade[]
   createAt  DateTime

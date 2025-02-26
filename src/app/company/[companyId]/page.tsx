@@ -2,24 +2,26 @@
 
 import { Skeleton } from "@/components/ui/skeleton"
 import { axiosInstance } from "@/lib/axiosInstance"
-import { Broker } from "@/src/app/api/brokers/Broker"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Account } from "@/src/app/api/accounts/Account"
 import { useParams } from 'next/navigation'
 import { ListAccounts } from "@/components/accounts/ListAccounts"
+import { constants } from "@/common/contants"
+import { Company } from "../../api/company/Company"
 
-export default function BrokerPage() {
-  const { brokerId } = useParams<{ brokerId: string }>();
+export default function CompanyPage() {
+  const { companyId } = useParams<{ companyId: string }>();
   const queryClient = useQueryClient()
-  const { data, isLoading } = useQuery<Broker>({
-      queryKey: ['/api/brokers/', brokerId],
+  const { data, isLoading } = useQuery<Company>({
+      queryKey: [constants.api.companies, companyId],
       queryFn: async () => {
-        const { data } = await axiosInstance.get<Broker>(`/api/brokers/${brokerId}`)
-        data.accounts.forEach(item => queryClient.setQueryData<Account>([`/api/brokers/${brokerId}/account/`, item.id], item))
+        console.log(`${constants.api.companies}${companyId}`)
+        const { data } = await axiosInstance.get<Company>(`${constants.api.companies}${companyId}`)
+        data.accounts.forEach(item => queryClient.setQueryData<Account>([`${constants.api.companies}${companyId}/account/`, item.id], item))
         return data
       },
 
-      enabled: !!brokerId
+      enabled: !!companyId
     })
 
     if (isLoading) {
@@ -36,6 +38,7 @@ export default function BrokerPage() {
     if (data) {
       return (
           <div>
+              <h1>{data.accounts.length} cuentas</h1>
               <ListAccounts data={data.accounts} />
           </div>
         )

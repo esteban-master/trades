@@ -1,5 +1,6 @@
 'use client'
 
+import { FormTrade } from "@/components/trades/FormTrade"
 import { TableTrades } from "@/components/trades/TableTrades"
 import { axiosInstance } from "@/lib/axiosInstance"
 import { cn } from "@/lib/utils"
@@ -66,7 +67,6 @@ export default function AccountPage() {
    const { data, isLoading } = useQuery<Account>({
        queryKey: [`/api/brokers/${brokerId}/account/`, accountId],
        queryFn: async () => {
-         
          const { data } = await axiosInstance.get<Account>(`/api/accounts/${accountId}`)
          return data
        },
@@ -78,6 +78,8 @@ export default function AccountPage() {
        return (
            <div>
                <h1 className="text-2xl">{data.name}</h1>
+
+               <FormTrade />
                <TableTrades data={data.trades} columns={columns} />
            </div>
          )

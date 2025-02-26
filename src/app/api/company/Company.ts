@@ -1,16 +1,16 @@
 import { z } from 'zod'
-import { Company } from '../company/Company';
+import { Account } from '../accounts/Account';
+import { Broker } from '../brokers/Broker';
 
-export type Broker = {
+export type Company = {
   id: string;
   name: string;
-  companyId: string;
-  company: Company
+  accounts: Account[]
+  brokers: Broker[]
 };
 
-export const brokerValidator = z.object({
+export const companyValidator = z.object({
   id: z.string().uuid(),
-  companyId: z.string().uuid(),
   name: z
     .string({ required_error: 'Ingrese un nombre.' })
     .min(3, { message: 'Mínimo 3 caracteres.' }),

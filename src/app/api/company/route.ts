@@ -1,30 +1,20 @@
-import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
-
-import { ZodError } from "zod";
-import { commissionValidator } from "./Commision";
-import { Prisma } from "@prisma/client";
-
+import prisma from '@/lib/prisma'
+import { NextResponse } from 'next/server';
+import { ZodError } from 'zod';
+import { companyValidator } from './Company';
 
 export async function GET() {
-    const commissions = await prisma.symbol.findMany();
+    const companies = await prisma.company.findMany();
 
-    return NextResponse.json(commissions); 
+    return NextResponse.json(companies); 
 }
-
 
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, brokerId, symbolId, volume, value} = commissionValidator.parse(body);
+        const { id, name } = companyValidator.parse(body);
 
-        await prisma.commission.create({ data: { 
-            id, 
-            volume: new Prisma.Decimal(volume), 
-            brokerId, 
-            symbolId, 
-            value: new Prisma.Decimal(value) } 
-        })
+        await prisma.company.create({ data: { id, name } })
 
         return NextResponse.json(null, { status: 201 })
     } catch (error) {

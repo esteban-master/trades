@@ -7,7 +7,7 @@ export type Account = {
   name: string;
   value: string;
   createAt: string;
-  brokerId: string;
+  companyId: string;
   trades: Trade[]
 };
 
@@ -22,7 +22,7 @@ const validateNumber = (value: string) => {
 
 export const accountValidator = z.object({
   id: z.string().uuid(),
-  brokerId: z.string().uuid(),
+  companyId: z.string().uuid(),
   name: z
     .string({ required_error: 'Ingrese un nombre.' })
     .min(3, { message: 'Mínimo 3 caracteres.' }),

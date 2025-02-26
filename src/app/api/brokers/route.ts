@@ -4,7 +4,9 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 
 export async function GET() {
-    const brokers = await prisma.broker.findMany();
+    const brokers = await prisma.broker.findMany({
+      include: { company: true, commissions: { include: { symbol: true } }}
+    });
 
     return NextResponse.json(brokers); 
 }
@@ -12,9 +14,9 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, name } = brokerValidator.parse(body);
+        const { id, name, companyId } = brokerValidator.parse(body);
 
-        await prisma.broker.create({ data: { id, name } })
+        await prisma.broker.create({ data: { id, name, companyId } })
 
         return NextResponse.json(null, { status: 201 })
     } catch (error) {
