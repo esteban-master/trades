@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useCompanyStore } from "@/lib/store/companyState";
+import { useCompanyStore } from "@/components/company/store/companyState";
 import { useGetAllCompanies } from './hooks/useGetAllBrokers';
 
 export function SelectCompanies() {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCompanyStore } from "@/lib/store/companyState"
+import { useCompanyStore } from "@/components/company/store/companyState"
 import { constants } from "@/common/contants"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams, usePathname, useRouter } from "next/navigation"
@@ -9,6 +9,7 @@ import { Company } from "../api/company/Company"
 import { useGetAllCompanies } from "@/components/company/hooks/useGetAllBrokers"
 import { SelectCompanies } from "@/components/company/SelectCompany"
 import { FormCompany } from "@/components/company/FormCompany"
+import { FormAccount } from "@/components/accounts/FormAccount"
 
 export default function CmpanyLayout({
     children,
@@ -43,6 +44,8 @@ export default function CmpanyLayout({
       <div>
         <SelectCompanies />
         <FormCompany />
+
+        <FormAccount />
         {children}
 
       </div>

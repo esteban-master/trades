@@ -27,5 +27,5 @@ export const accountValidator = z.object({
     .string({ required_error: 'Ingrese un nombre.' })
     .min(3, { message: 'Mínimo 3 caracteres.' }),
   value: z.string({ required_error: 'Ingrese un valor.' }).refine(validateNumber, { message: 'Ingrese un valor válido.' }),
-  createAt: z.date({ required_error: 'Ingrese fecha de cierre.' })
+  createAt: z.string({ required_error: 'Ingrese fecha de cierre.' })
 });

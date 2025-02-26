@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { constants } from "@/common/contants";
 import { companyValidator } from '@/src/app/api/company/Company';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
-import { useCompanyStore } from '@/lib/store/companyState';
+import { useCompanyStore } from '@/components/company/store/companyState';
 
 type CompanySchema = z.infer<typeof companyValidator>;
 
@@ -26,7 +26,6 @@ export function FormCompany({ onCreate }: { onCreate?: (values: CompanySchema) =
     const open = useCompanyStore((store) => store.create.open);
     const setOpen = useCompanyStore((store) => store.create.setOpen);
 
-    // console.log({ open })
     const companyForm = useForm<CompanySchema>({
         resolver: zodResolver(companyValidator),
         defaultValues: {

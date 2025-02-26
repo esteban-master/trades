@@ -9,7 +9,7 @@ export async function GET(
   try {
     const company = await prisma.company.findUnique({
       where: { id },
-      include: { accounts: true }
+      include: { accounts: { include: { trades: true } } }
     });
 
     if (!company) {
