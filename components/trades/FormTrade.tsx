@@ -17,7 +17,7 @@ import { Textarea } from "../ui/textarea"
 type FormSchema = z.infer<typeof tradeValidator> 
 
 export function FormTrade() {
-     const { accountId } = useParams<{ accountId: string }>()
+    const { accountId } = useParams<{ accountId: string }>()
     const open = useTradeStore((state) => state.create.open)
     const setOpen = useTradeStore((state) => state.create.setOpen)
 
@@ -38,7 +38,6 @@ export function FormTrade() {
         }
     })
 
-    console.log(form.formState.defaultValues)
     function onSubmit(values: FormSchema) {
         console.log(values)
       }
