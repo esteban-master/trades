@@ -46,7 +46,7 @@ export function FormAccount() {
     }, [companyId, accountForm])
     
     const queryClient = useQueryClient()
-    const { mutate } = useMutation<null, AxiosError, AccountSchema, { previousAccounts: Account[] }>({
+    const { mutate } = useMutation<null, AxiosError, AccountSchema, { previousAccounts: Account[], previousCompany: Company | undefined }>({
         mutationFn: async (values) => {
             const { data } = await axiosInstance.post(
                 constants.api.accounts,
@@ -67,17 +67,24 @@ export function FormAccount() {
             const previousCompany = queryClient.getQueryData<Company>([constants.api.companies, { companyId: values.companyId }])
             queryClient.setQueryData<Company>([constants.api.companies, { companyId: values.companyId }], (old) => {
                 if (old) {
-                    return {...old, accounts: [...old.accounts, values]}
+                    return {
+                        ...old, 
+                        accounts: [...old.accounts, {...values, trades: []}]
+                    }
                 }
             })
             setOpen(false)
-            return { previousAccounts }
+            return { previousAccounts, previousCompany }
         },
         onError: (_, values, context) => {
             if(context) {
                 queryClient.setQueryData(
                     [constants.api.accounts, { companyId: values.companyId }],
                     context.previousAccounts,
+                );
+                queryClient.setQueryData(
+                    [constants.api.companies, { companyId: values.companyId }],
+                    context.previousCompany,
                 );
             }
         }
