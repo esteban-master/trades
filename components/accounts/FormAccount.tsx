@@ -55,7 +55,7 @@ export function FormAccount() {
             return data;
         },
         onMutate: async (values) => {
-            await queryClient.cancelQueries({ queryKey: [constants.api.accounts] })
+            await queryClient.cancelQueries({ queryKey: [constants.api.accounts, { companyId: values.companyId }] })
             const previousAccounts = queryClient.getQueryData<Account[]>([constants.api.accounts, { companyId: values.companyId }]) || []
             queryClient.setQueryData<Account[]>([constants.api.accounts, { companyId: values.companyId }],  (old) => {
                 if (old) {

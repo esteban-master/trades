@@ -1,5 +1,6 @@
 'use client'
 
+import { constants } from "@/common/contants"
 import { FormTrade } from "@/components/trades/FormTrade"
 import { TableTrades } from "@/components/trades/TableTrades"
 import { axiosInstance } from "@/lib/axiosInstance"
@@ -63,11 +64,11 @@ const columns = [
 ]
 
 export default function AccountPage() {
-   const { accountId, brokerId } = useParams<{brokerId: string, accountId: string}>()
+   const { accountId, companyId } = useParams<{companyId: string, accountId: string}>()
    const { data, isLoading } = useQuery<Account>({
-       queryKey: [`/api/brokers/${brokerId}/account/`, accountId],
+       queryKey: [constants.api.accounts, {companyId ,accountId}],
        queryFn: async () => {
-         const { data } = await axiosInstance.get<Account>(`/api/accounts/${accountId}`)
+         const { data } = await axiosInstance.get<Account>(`${constants.api.accounts}${accountId}`)
          return data
        },
        enabled: !!accountId

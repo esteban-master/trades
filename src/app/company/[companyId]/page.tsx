@@ -15,7 +15,7 @@ export default function CompanyPage() {
       queryKey: [constants.api.companies, { companyId }],
       queryFn: async () => {
         const { data } = await axiosInstance.get<Company>(`${constants.api.companies}${companyId}`)
-        data.accounts.forEach(item => queryClient.setQueryData<Account>([`${constants.api.companies}${companyId}/account/`, item.id], item))
+        data.accounts.forEach(item => queryClient.setQueryData<Account>([constants.api.accounts, { companyId, accountId: item.id }], item))
         return data
       },
 

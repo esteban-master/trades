@@ -45,7 +45,9 @@ export function ListAccounts() {
         {data.map(account => (
             <Card key={account.id}>
               <CardHeader>
-                  <CardTitle><Link href={`${pathName}/account/${account.id}`}>{account.name}</Link></CardTitle>
+                  <CardTitle>
+                    <Link href={`${pathName}/account/${account.id}`}>{account.name}</Link>
+                  </CardTitle>
                   <CardDescription>
                     <div>
                       <p>${account.value}</p>
