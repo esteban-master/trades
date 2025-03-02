@@ -28,7 +28,7 @@ const validateNumber = (value: string) => {
 export const tradeValidator = z.object({
   id: z.string().uuid(),
   accountId: z.string().uuid(),
-  symbolId: z.string().uuid(),
+  symbolId: z.string({ required_error: 'Seleccione un símbolo.' }).uuid({ message: 'Selecione un símbolo.' }),
   comment: z.string().optional(),
   price: z.string({ required_error: 'Ingrese un precio.' }).refine(validateNumber, { message: 'Ingrese un precio válido.' }),
   stopLoss: z.string({ required_error: 'Ingrese un stop loss.' }).refine(validateNumber, { message: 'Ingrese un valor válido.' }),

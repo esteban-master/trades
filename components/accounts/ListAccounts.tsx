@@ -27,7 +27,6 @@ export function ListAccounts() {
     enabled: !!companyId
   })
 
-  console.log({ data, isLoading, pathName })
   if (isLoading) {
     return (
       <div className="flex flex-col space-y-3">

@@ -15,7 +15,7 @@ export function SelectCompanies() {
     const value = useCompanyStore((state) => state.select.value)
     const setValue = useCompanyStore((state) => state.select.setValue)
     
-    const { isPending, isError, data } = useGetAllCompanies()
+    const { isLoading, isError, data } = useGetAllCompanies()
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -23,7 +23,7 @@ export function SelectCompanies() {
           <Button
             variant="outline"
             role="combobox"
-            disabled={isPending || isError}
+            disabled={isLoading || isError}
             aria-expanded={open}
             className="w-[200px] justify-between"
           >

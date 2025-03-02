@@ -45,7 +45,8 @@ export default function CmpanyLayout({
         <SelectCompanies />
         <FormCompany />
 
-        <FormAccount />
+        { companyId && <FormAccount /> }
+        
         {children}
 
       </div>

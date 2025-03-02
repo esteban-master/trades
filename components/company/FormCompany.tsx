@@ -74,7 +74,7 @@ export function FormCompany({ onCreate }: { onCreate?: (values: CompanySchema) =
     return (
         <Popover open={open} onOpenChange={setOpen} >
             <PopoverTrigger asChild>
-                <Button>Crear <PlusCircle className="h-8 w-8 cursor-pointer" /></Button>
+                <Button>Crear empresa <PlusCircle className="h-8 w-8 cursor-pointer" /></Button>
             </PopoverTrigger>
             <PopoverContent>
                 <Form {...companyForm}>
