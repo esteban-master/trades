@@ -14,7 +14,7 @@ import { CalendarIcon, Check, ChevronsUpDown, PlusCircle } from "lucide-react"
 import { v4 as uuidv4 } from 'uuid';
 import { useParams } from "next/navigation"
 import { Textarea } from "../ui/textarea"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { constants } from "@/common/contants"
 import { axiosInstance } from "@/lib/axiosInstance"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command"
@@ -24,20 +24,25 @@ import { Calendar } from "../ui/calendar"
 import { ChangeEvent } from "react"
 import { formatDate } from "@/lib/formatDate"
 import { Switch } from "../ui/switch"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from "../ui/dialog"
+import { DialogTitle } from "@radix-ui/react-dialog"
+import { Label } from "../ui/label"
+import { AxiosError } from "axios"
+import { Account } from "@/src/app/api/accounts/Account"
 
 type FormSchema = z.infer<typeof tradeValidator> 
 
 export function FormTrade() {
-    const { accountId } = useParams<{ accountId: string }>()
+    const { accountId, companyId } = useParams<{ accountId: string, companyId: string }>()
     const open = useTradeStore((state) => state.create.open)
     const setOpen = useTradeStore((state) => state.create.setOpen)
+    
     const openTimeValue = useTradeStore((state) => state.create.openTimeValue);
     const closeTimeValue = useTradeStore((state) => state.create.closeTimeValue);
 
     const setOpenTimeValue = useTradeStore((state) => state.create.setOpenTimeValue);
     const setCloseTimeValue = useTradeStore((state) => state.create.setCloseTimeValue);
 
-    console.log({ openTimeValue, closeTimeValue })
     const { data: symbols, isLoading, isError } = useQuery<Symbol[]>({ 
         queryKey: [constants.api.symbols],
         queryFn: async () => {
@@ -49,7 +54,6 @@ export function FormTrade() {
     const form = useForm<FormSchema>({
         resolver: zodResolver(tradeValidator),
         defaultValues: {
-            id: uuidv4(),
             accountId: accountId,
             price: '',
             stopLoss: '',
@@ -63,6 +67,40 @@ export function FormTrade() {
             type: 'BUY',
             open: new Date(),
             close: new Date(),
+        }
+    })
+
+    const queryClient = useQueryClient()
+    const { mutate, isPending } = useMutation<null, AxiosError, FormSchema, { previousAccount: Account | undefined }>({
+        mutationFn: async (values) => {
+            const { data } = await axiosInstance.post(
+                constants.api.trades,
+                values
+            )
+            return data;
+        },
+        onMutate: async (values) => {
+            await queryClient.cancelQueries({ queryKey: [constants.api.accounts, { accountId, companyId }] });
+            const previousAccount = queryClient.getQueryData<Account>([constants.api.accounts, { accountId, companyId }])
+            const symbols = queryClient.getQueryData<Symbol[]>([constants.api.symbols]) || []
+            queryClient.setQueryData<Account>([constants.api.accounts, { accountId, companyId }], (old) => {
+                const symbol = symbols.find(item => item.id === values.symbolId);
+                if (old && symbol) {
+                    return { ...old, trades: [...old.trades, {...values, symbol}] }
+                }
+            })
+            
+            setOpen(false)
+            form.reset()
+            return { previousAccount }
+        },
+        onError: (_, __, context) => {
+            if (context) {
+                queryClient.setQueryData(
+                    [constants.api.accounts, { accountId, companyId }], 
+                    context.previousAccount
+                )
+            }
         }
     })
 
@@ -97,20 +135,46 @@ export function FormTrade() {
         form.setValue(formValue, newDate);
     };
 
-    console.log(form.formState.errors)
     function onSubmit(values: FormSchema) {
         console.log(values)
+        mutate(values)
       }
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
                 <Button>Crear trade <PlusCircle className="h-8 w-8 cursor-pointer" /></Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-lg">
+            </DialogTrigger>
+            <DialogContent className="">
+                <DialogHeader>
+                    <DialogTitle>Añadir trade</DialogTitle>
+                </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid gap-1 md:grid-cols-2 md:gap-3">
+                        <FormField
+                                control={form.control}
+                                name="type"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-2">
+                                        <div className="flex space-x-2 items-center">
+                                            <Label htmlFor="type-trade">BUY</Label>
+                                            <FormControl>
+                                                <Switch
+                                                    id="type-trade"
+                                                    checked={field.value !== "BUY"}
+                                                    onCheckedChange={(v) => {
+                                                        form.setValue('type', v ? 'SELL' : 'BUY')
+                                                    }}
+                                                    className="data-[state=unchecked]:bg-green-500 data-[state=checked]:bg-red-500"
+                                                />
+                                            </FormControl>
+                                            <Label htmlFor="type-trade">SELL</Label>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <FormField
                                 control={form.control}
                                 name="price"
@@ -119,24 +183,6 @@ export function FormTrade() {
                                         <FormLabel>Precio</FormLabel>
                                         <FormControl>
                                             <Input placeholder="1.43023" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="type"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Precio</FormLabel>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value === "BUY"}
-                                                onCheckedChange={(v) => {
-                                                    form.setValue('type', v ? 'BUY' : 'SELL')
-                                                }}
-                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -286,26 +332,9 @@ export function FormTrade() {
                                 />
                             <FormField
                                 control={form.control}
-                                name="comment"
-                                render={({ field }) => (
-                                    <FormItem className="col-span-2">
-                                        <FormLabel>Comentario</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder=""
-                                                className="resize-none"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                                />
-                            <FormField
-                                control={form.control}
                                 name="open"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2">
+                                    <FormItem className="">
                                         <FormLabel>Apertura</FormLabel>
                                         <Popover>
                                     <PopoverTrigger asChild>
@@ -350,7 +379,7 @@ export function FormTrade() {
                                 control={form.control}
                                 name="close"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2">
+                                    <FormItem className="">
                                         <FormLabel>Cierre</FormLabel>
                                         <Popover>
                                             <PopoverTrigger asChild>
@@ -391,11 +420,36 @@ export function FormTrade() {
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={form.control}
+                                name="comment"
+                                render={({ field }) => (
+                                    <FormItem className="md:col-span-2">
+                                        <FormLabel>Comentario</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder=""
+                                                className="resize-none"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
                         </div>
-                        <Button type="submit">Crear</Button>
+                        <DialogFooter className="sm:justify-start">
+                            <Button 
+                                type="submit" 
+                                disabled={isPending}
+                                onClick={() => {
+                                    form.setValue('id', uuidv4());
+                                }}
+                            >Crear</Button>
+                        </DialogFooter>
                     </form>
                 </Form>
-            </PopoverContent>
-        </Popover>
+            </DialogContent>
+        </Dialog>
     )
 }

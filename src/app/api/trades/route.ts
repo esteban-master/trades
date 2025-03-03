@@ -29,7 +29,7 @@ export async function POST(request: Request) {
             symbolId, 
             type, 
             open 
-        } = tradeValidator.parse(body);
+        } = tradeValidator.parse({...body, open: new Date(body.open), close: new Date(body.close)});
 
         await prisma.trade.create({ 
             data: { 

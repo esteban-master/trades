@@ -11,8 +11,10 @@ export type Trade = {
   swap: string;
   pipsStopLoss: string;
   pipsTakeProfit: string;
-  comment: string;
+  comment?: string;
   accountId: string;
+  open: Date;
+  close: Date;
   symbol: Symbol;
 };
 

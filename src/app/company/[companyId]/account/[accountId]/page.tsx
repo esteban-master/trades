@@ -77,8 +77,13 @@ export default function AccountPage() {
      if (isLoading) return null
      if (data) {
        return (
-           <div>
-               <h1 className="text-2xl">{data.name}</h1>
+           <div className="space-y-2">
+               <h1 className="text-2xl">
+                  {data.name} - {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  }).format(new Prisma.Decimal(data.value).toNumber())}
+                </h1>
 
                <FormTrade />
                <TableTrades data={data.trades} columns={columns} />

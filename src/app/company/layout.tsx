@@ -41,7 +41,7 @@ export default function CmpanyLayout({
     }, [companyId, setValueCompanyId, isFetching, data, queryClient, pathname, router])
     if (pathname.split('/').length > 2 && !companyId) return null
     return (
-      <div>
+      <div className="w-[90%] mx-auto">
         <SelectCompanies />
         <FormCompany />
 
