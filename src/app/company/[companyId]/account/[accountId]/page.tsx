@@ -14,6 +14,16 @@ import { useParams } from "next/navigation"
 
 const columHelper = createColumnHelper<Trade>();
 const columns = [
+  columHelper.accessor('id', {
+    id: 'id',
+    header: () => '',
+    cell: ({ row }) => {
+      console.log(row)
+      return <div>
+      { row.index + 1 }
+    </div>
+    }
+  }),
   {
     accessorKey: 'price',
     header: 'Precio',

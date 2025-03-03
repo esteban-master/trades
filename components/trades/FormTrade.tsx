@@ -71,7 +71,7 @@ export function FormTrade() {
     })
 
     const queryClient = useQueryClient()
-    const { mutate, isPending } = useMutation<null, AxiosError, FormSchema, { previousAccount: Account | undefined }>({
+    const { mutate, isPending } = useMutation<null, AxiosError, FormSchema, { previousAccount: Account | undefined, previousAccountsCompany: Account[] | undefined }>({
         mutationFn: async (values) => {
             const { data } = await axiosInstance.post(
                 constants.api.trades,
@@ -82,23 +82,43 @@ export function FormTrade() {
         onMutate: async (values) => {
             await queryClient.cancelQueries({ queryKey: [constants.api.accounts, { accountId, companyId }] });
             const previousAccount = queryClient.getQueryData<Account>([constants.api.accounts, { accountId, companyId }])
+            const previousAccountsCompany = queryClient.getQueryData<Account[]>([constants.api.accounts, { companyId }])
             const symbols = queryClient.getQueryData<Symbol[]>([constants.api.symbols]) || []
+
+            const symbol = symbols.find(item => item.id === values.symbolId);
             queryClient.setQueryData<Account>([constants.api.accounts, { accountId, companyId }], (old) => {
-                const symbol = symbols.find(item => item.id === values.symbolId);
                 if (old && symbol) {
                     return { ...old, trades: [...old.trades, {...values, symbol}] }
                 }
             })
+
+            queryClient.setQueryData<Account[]>([constants.api.accounts, { companyId }], (old) => {
+                if (old && symbol) {
+                    const accountIndex = old.findIndex(item => item.id === values.accountId);
+                    console.log({ accountIndex });
+                    if (accountIndex !== -1) {
+                        old[accountIndex] = { ...old[accountIndex], trades: [...old[accountIndex].trades, {...values, symbol}]}
+                        console.log({ old })
+                        return old
+                    }
+                    return old;
+                }
+                
+            })
             
             setOpen(false)
             form.reset()
-            return { previousAccount }
+            return { previousAccount, previousAccountsCompany }
         },
         onError: (_, __, context) => {
             if (context) {
                 queryClient.setQueryData(
                     [constants.api.accounts, { accountId, companyId }], 
                     context.previousAccount
+                )
+                queryClient.setQueryData(
+                    [constants.api.accounts, { companyId }],
+                    context.previousAccountsCompany
                 )
             }
         }
