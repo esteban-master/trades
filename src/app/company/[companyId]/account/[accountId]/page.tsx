@@ -1,5 +1,6 @@
 'use client'
 
+import { AccountAreaChart } from "@/components/accounts/AreaChart"
 import { useGetAccount } from "@/components/accounts/hooks/useGetAccount"
 import { FormTrade } from "@/components/trades/FormTrade"
 import { TableTrades } from "@/components/trades/TableTrades"
@@ -124,6 +125,7 @@ export default function AccountPage() {
                   }).format(new Prisma.Decimal(data.value).toNumber())}
                 </h1>
 
+               <AccountAreaChart />
                <FormTrade />
                <TableTrades data={data.trades} columns={columns} />
            </div>
