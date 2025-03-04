@@ -1,16 +1,37 @@
 'use client'
 
-import { constants } from "@/common/contants"
+import { useGetAccount } from "@/components/accounts/hooks/useGetAccount"
 import { FormTrade } from "@/components/trades/FormTrade"
 import { TableTrades } from "@/components/trades/TableTrades"
-import { axiosInstance } from "@/lib/axiosInstance"
 import { cn } from "@/lib/utils"
-import { Account } from "@/src/app/api/accounts/Account"
 import { Trade } from "@/src/app/api/trades/Trade"
 import { Prisma } from "@prisma/client"
-import { useQuery } from "@tanstack/react-query"
 import { createColumnHelper } from "@tanstack/react-table"
+import { differenceInSeconds } from "date-fns"
 import { useParams } from "next/navigation"
+
+const formatTimeDifference = (open: Date, close: Date) => {
+  let totalSeconds = differenceInSeconds(close, open);
+  const negative = totalSeconds < 0 ? "-" : "";
+  totalSeconds = Math.abs(totalSeconds);
+
+  const days = Math.floor(totalSeconds / (60 * 60 * 24));
+  totalSeconds %= 60 * 60 * 24;
+
+  const hours = Math.floor(totalSeconds / (60 * 60));
+  totalSeconds %= 60 * 60;
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  const formattedTime = [];
+  if (days > 0) formattedTime.push(`${days}d`);
+  if (hours > 0) formattedTime.push(`${hours}h`);
+  if (minutes > 0) formattedTime.push(`${minutes}m`);
+  if (seconds > 0 || formattedTime.length === 0) formattedTime.push(`${seconds}s`);
+
+  return negative + formattedTime.join(" ");
+};
 
 const columHelper = createColumnHelper<Trade>();
 const columns = [
@@ -70,19 +91,27 @@ const columns = [
   {
     accessorKey: 'comment',
     header: 'Comentario',
-  }
+  },
+  columHelper.accessor('pipsStopLoss',{
+    id: 'ratio',
+    header: 'Ratio',
+    cell: ({ row }) => {
+      return <div>{new Prisma.Decimal(row.original.pipsTakeProfit).div(row.original.pipsStopLoss).toDecimalPlaces(2).toString()}</div>
+    } 
+  }),
+  columHelper.accessor('pipsTakeProfit',{
+    id: 'duration',
+    header: 'Duración',
+    cell: ({ row }) => {
+      return <div>{formatTimeDifference(row.original.open, row.original.close)}</div>
+    } 
+  })
+
 ]
 
 export default function AccountPage() {
    const { accountId, companyId } = useParams<{companyId: string, accountId: string}>()
-   const { data, isLoading } = useQuery<Account>({
-       queryKey: [constants.api.accounts, {companyId ,accountId}],
-       queryFn: async () => {
-         const { data } = await axiosInstance.get<Account>(`${constants.api.accounts}${accountId}`)
-         return data
-       },
-       enabled: !!accountId
-     })
+   const { data, isLoading } = useGetAccount({ companyId, accountId });
    
      if (isLoading) return null
      if (data) {

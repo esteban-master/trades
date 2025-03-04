@@ -4,28 +4,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Account } from "@/src/app/api/accounts/Account"
 import Link from 'next/link'
-import { usePathname } from "next/navigation";
-import { useCompanyStore } from "../company/store/companyState";
-import { useQuery } from "@tanstack/react-query";
-import { constants } from "@/common/contants";
-import { axiosInstance } from "@/lib/axiosInstance";
+import { useParams, usePathname } from "next/navigation";
 import { Skeleton } from "../ui/skeleton";
+import { useGetAllAccounts } from "./hooks/useGetAllAccounts";
   
 export function ListAccounts() {
   const pathName = usePathname();
-  const companyId = useCompanyStore((state) => state.select.value);
+  const { companyId } = useParams<{ companyId: string }>()
 
-  const { data, isLoading } = useQuery<Account[]>({
-    queryKey: [constants.api.accounts, {companyId}],
-    queryFn: async () => {
-      const { data } = await axiosInstance.get<Account[]>(`${constants.api.accounts}?companyId=${companyId}`)
-      return data
-    },
-
-    enabled: !!companyId
-  })
+  const { data, isLoading } = useGetAllAccounts({ companyId })
 
   if (isLoading) {
     return (
@@ -40,7 +28,7 @@ export function ListAccounts() {
   }
   if (data) {
     return (
-      <div>
+      <div className="grid gap-1 md:grid-cols-2 md:gap-3">
         {data.map(account => (
             <Card key={account.id}>
               <CardHeader>

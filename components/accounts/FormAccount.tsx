@@ -29,7 +29,6 @@ export function FormAccount() {
     const open = useAccountStore((store) => store.create.open);
     const setOpen = useAccountStore((store) => store.create.setOpen);
 
-    
     const accountForm = useForm<AccountSchema>({
         resolver: zodResolver(accountValidator),
         defaultValues: {
@@ -57,7 +56,6 @@ export function FormAccount() {
                 if (old) {
                     return [...old, {...values, trades: []}]
                 }
-                return [{...values, trades: []}]
             })
      
             queryClient.setQueryData<Company>([constants.api.companies, { companyId: values.companyId }], (old) => {
